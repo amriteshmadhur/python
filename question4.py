@@ -21,55 +21,57 @@ Excepted Output Data Attributes
 import requests
 import csv
 import codecs
+extracted_data = []
 
-def download_and_convert_data(url, output_file):
-    # Download the JSON data from the provided URL
+def download_data(url):
     response = requests.get(url)
-    data = response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
 
-    # Extract the desired attributes from the JSON data
-    attributes = [
-        "name",
-        "id",
-        "nametype",
-        "recclass",
-        "mass (g)",
-        "year",
-        "reclat",
-        "reclong",
-        "geolocation"
-    ]
-
-    # Write the data to a CSV file
+def convert_to_csv(data, filename):
+   # Extract the relevant attributes from the JSON data
+ 
+    for item in data:
+        print(item.keys())
+        #providing default values as in many one or other keys are missing in items
+        extracted_item = {
+            'Name of Earth Meteorite': item.get('name', ''),
+            'Meteorite': int(item.get('id', 0)),
+            'nametype': item.get('nametype', ''),
+            'recclass': item.get('recclass', ''),
+            'mass': float(item.get('mass', 0)) if 'mass' in item else 0.0,
+            'year': item.get('year', ''),
+            'reclat': float(item.get('reclat', 0.0)),
+            'recclong': float(item.get('reclong', 0.0)),
+            'point coordinates': item.get("geolocation", {}).get("coordinates", [])
+        }
+        extracted_data.append(extracted_item)
+        # Write the extracted data to a CSV file
+        
     with codecs.open(output_file, "w", encoding="utf-8", errors="replace") as csvfile:
-        writer = csv.writer(csvfile)
-        
-        # Write the header row
-        writer.writerow(attributes)
-        
-        # Write each meteorite's data as a row in the CSV file
-        for meteorite in data:
-            row = [
-                meteorite.get("name", ""),
-                meteorite.get("id", ""),
-                meteorite.get("nametype", ""),
-                meteorite.get("recclass", ""),
-                meteorite.get("mass (g)", ""),
-                meteorite.get("year", ""),
-                meteorite.get("reclat", ""),
-                meteorite.get("reclong", ""),
-                meteorite.get("geolocation", {}).get("coordinates", [])
-            ]
-            writer.writerow(row)
+        writer = csv.DictWriter(csvfile, fieldnames=extracted_data[0].keys())
+        writer.writeheader()
+        writer.writerows(extracted_data)
+    
+    print(f"Data saved as {filename}")
 
-    print("CSV file created successfully!")
+# Main program
+
+
 
 
     
 if __name__ == "__main__":
     
-    base_path = r'C:\documents\ineuron\Assignments\Git_Personal\DS_ASSIGNMENT\python'
-    
     url = "https://data.nasa.gov/resource/y77d-th95.json"
-    output_file = base_path+"/meteorite_data.csv"
-    download_and_convert_data(url, output_file)
+    data = download_data(url)
+    base_path = r'C:\documents\ineuron\Assignments\Git_Personal\DS_ASSIGNMENT\python'
+
+    output_file = base_path+"/meteorite_data2.csv"
+    if data is not None:
+#
+        convert_to_csv(data, output_file)
+    else:
+        print("Failed to download the data.")
