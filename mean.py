@@ -2,7 +2,7 @@
 """
 Created on Sun Jul  2 17:27:04 2023
 
-@author: 0002J0744
+@author: Amritesh
 """
 
 def calculate_mean(numbers):
