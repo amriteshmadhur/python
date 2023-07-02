@@ -14,12 +14,6 @@ def calculate_mean(numbers):
 
     Returns:
     float or None: The mean value of the numbers. Returns None if the input list is empty.
-
-    Example:
-    >>> data = [10, 15, 20, 25, 30]
-    >>> mean_value = calculate_mean(data)
-    >>> print("Mean:", mean_value)
-    Mean: 20.0
     """
     if not numbers:
         return None
